@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ChatBot</title>
+<link href="https://upb.ro/wp-content/uploads/2020/05/cropped-UPB_icon-192x192.png" rel="icon"/>
+<style>
+    body {
+      font-family: 'Georgia', serif;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      animation: fadeIn 1.5s ease;
+    }
+
+    header {
+      font-size: 2rem;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .info-banner {
+      font-size: 0.9rem;
+      color: #888888;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .chat-wrapper {
+      background-color: #1f1f1f;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      height: 80vh;
+      position: relative;
+    }
+
+    #chat-container {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 0.9rem 1.4rem;
+      border-radius: 1.2rem;
+      line-height: 1.5;
+      animation: slideIn 0.4s ease;
+      position: relative;
+    }
+
+    .user {
+      align-self: flex-end;
+      background-color: #37594e;
+      color: #ffffff;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+      padding-left: 2.5rem;
+    }
+
+    .bot::before {
+      content: '🤖';
+      position: absolute;
+      left: 1rem;
+      top: 0.9rem;
+    }
+
+    .typing {
+      align-self: flex-start;
+      background-color: #2a2a2a;
+      color: #aaaaaa;
+      border-radius: 1.2rem;
+      padding: 0.9rem 1.4rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-style: italic;
+    }
+
+    .typing span {
+      width: 6px;
+      height: 6px;
+      background-color: #aaaaaa;
+      border-radius: 50%;
+      display: inline-block;
+      animation: blink 1.2s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    #input-form {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border-top: 1px solid #333;
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+
+    #question-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #444;
+      border-radius: 1rem;
+      background-color: #262626;
+      color: #e0e0e0;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    #question-input:focus {
+      box-shadow: 0 0 10px #26a269cc;
+    }
+
+    #submit-btn {
+      margin-left: 0.75rem;
+      padding: 0.75rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 1rem;
+      background-color: #26a269;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #submit-btn:hover {
+      background-color: #1c7f51;
+      transform: scale(1.05);
+      box-shadow: 0 0 8px 2px rgba(38, 162, 105, 0.4);
+    }
+
+    .suggestions {
+      margin-left: 1rem;
+      font-size: 0.85rem;
+      color: #aaa;
+      cursor: pointer;
+    }
+
+    .suggestion-box {
+      position: absolute;
+      bottom: 5.5rem;
+      left: 1rem;
+      background: #262626;
+      border: 1px solid #444;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.4rem;
+      z-index: 10;
+    }
+
+    .suggestion-box button {
+      background: transparent;
+      border: none;
+      color: #e0e0e0;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 0.3rem;
+    }
+
+    .suggestion-box button:hover {
+      background: #333;
+    }
+
+    .credits {
+      font-size: 0.85rem;
+      margin-top: 1.5rem;
+      color: #aaa;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.2; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-3px); }
+    }
+  </style>
+</head>
+<body>
+<header>ChatBot</header>
+<div class="info-banner">Faculty of Automatic Control and Computer Science · Year I · 2024-2025</div>
+<div class="chat-wrapper"><div style="position: relative; height: 0;"><div class="suggestions" onclick="toggleSuggestions()" style="position: absolute; top: 1rem; right: 1rem; z-index: 15; margin: 0;">💡 Suggestions</div></div><div style="position:absolute; top:1rem; left:1rem; z-index:15;"></div>
+<div class="suggestion-box" id="suggestion-box"></div>
+<div id="chat-container"></div>
+<form id="input-form">
+<input autocomplete="off" id="question-input" placeholder="Type your question..." required="" type="text"/>
+<button id="submit-btn" type="submit">Send</button>
+</form>
+</div>
+<div class="credits">Project created by: Dumitriu Miruna-Maria · Scîrtocea Mara-Roxana · Matei Miruna-Iuliana · Ștefan Roxana-Andreea · Popa Bianca-Maria · Gavrilă Anca-Bristena</div>
+<script>
+    const chatContainer = document.getElementById('chat-container');
+    const inputForm = document.getElementById('input-form');
+    const questionInput = document.getElementById('question-input');
+    const suggestionBox = document.getElementById('suggestion-box');
+
+    function scrollToBottom() {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function addMessage(text, isUser = true, isTyping = false) {
+      const msg = document.createElement('div');
+      msg.classList.add('message');
+      msg.classList.add(isTyping ? 'typing' : (isUser ? 'user' : 'bot'));
+      if (isTyping) {
+        msg.innerHTML = `🤖 <span></span><span></span><span></span>`;
+      } else {
+        msg.textContent = text;
+      }
+      chatContainer.appendChild(msg);
+      scrollToBottom();
+      return msg;
+    }
+
+    async function sendMessage(textOverride = null) {
+      const question = textOverride || questionInput.value.trim();
+      if (!question) return;
+
+      addMessage(question, true);
+      questionInput.value = '';
+
+      const typingBubble = addMessage('', false, true);
+      const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-message-pop-alert-2354.mp3');
+
+      try {
+        const response = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question })
+        });
+        const data = await response.json();
+        typingBubble.remove();
+        addMessage(data.answer, false);
+        audio.play();
+      } catch (err) {
+        typingBubble.remove();
+        addMessage('⚠️ Network or server error!', false);
+      }
+    }
+
+    inputForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      sendMessage();
+    });
+
+    questionInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    function toggleSuggestions() {
+      const isVisible = suggestionBox.style.display === 'flex';
+      suggestionBox.style.display = isVisible ? 'none' : 'flex';
+      if (!isVisible) {
+        suggestionBox.innerHTML = '';
+        const suggestions = [
+          'What are the types of digital content?',
+          'Explain text-based versus visual content.',
+          'What role do social media play in content creation?',
+          'What is interactive content?',
+          'Give examples of webinars and digital formats.'
+        ];
+        suggestions.forEach(s => {
+          const btn = document.createElement('button');
+          btn.textContent = s;
+          btn.onclick = () => {
+            sendMessage(s);
+            suggestionBox.style.display = 'none';
+          };
+          suggestionBox.appendChild(btn);
+        });
+      }
+    }
+
+    // Mesaj de întâmpinare
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => addMessage('Welcome to AC ChatBot! How can I help you today?', false), 500);
+    });
+  </script>
+</body>
+</html>
