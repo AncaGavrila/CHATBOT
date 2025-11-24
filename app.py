@@ -5,7 +5,6 @@ from docx import Document
 from sentence_transformers import SentenceTransformer, util
 
 # Configurare OpenAI
-openai.api_key = "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"
 
 app = Flask(__name__)
 DOCX_FOLDER = "MODULE"
